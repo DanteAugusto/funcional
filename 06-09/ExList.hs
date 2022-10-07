@@ -89,11 +89,13 @@ maximum (x:xs) = if x <= y then y else x
                 where y = maximum xs
 
 take :: Int -> [a] -> [a]
-take 0 xs = []
+take _ [] = []
+take 0 _ = []
 take n (y:ys) = y : (take (n-1) ys)
 
 drop :: Int -> [a] -> [a]
-drop 0 xs = xs
+drop _ [] = []
+drop 0 ys = ys
 drop n (y:ys) = (drop (n-1) ys)
 
 takeWhile :: (a -> Bool) -> [a] -> [a]
@@ -126,7 +128,9 @@ inits (x:xs) = [] : (L.map (x:) (inits xs))
 -- and
 -- or
 
--- concat
+concat :: [[a]] -> [a]
+concat [] = []
+concat (x:xs) = x ++ concat xs
 
 -- elem using the funciton 'any' above
 
@@ -135,7 +139,9 @@ inits (x:xs) = [] : (L.map (x:) (inits xs))
 
 -- (!!)
 
--- filter
+filter :: (a -> Bool) -> [a] -> [a]
+filter _ [] = []
+filter f (x:xs) = if f x  then x:(filter f xs) else filter f xs
 -- map
 
 -- cycle
