@@ -61,7 +61,8 @@ infixr 5 ++
 
 -- (snoc is cons written backwards)
 snoc :: a -> [a] -> [a]
-snoc x xs= x : xs
+snoc x [] = [x]
+snoc y (x:xs)= x : (snoc y xs)
 
 (<:) :: [a] -> a -> [a]
 (<:) = flip snoc
@@ -117,32 +118,57 @@ init (x:xs) = x:(init xs)
 
 inits :: [a] ->[[a]]
 inits [] = [[]]
-inits (x:xs) = [] : (L.map (x:) (inits xs)) 
+inits (xs) = xs : (inits (init xs)) 
 -- inits "hello" = ["","h","he","hel","hell","hello"]
 
--- subsequences
+subsequences :: [a] -> [[a]]
+subsequences [] = []
+subsequences (x:xs) = [x]: (map (x:) (subsequences xs)) ++ (subsequences xs)
 
--- any
--- all
 
--- and
--- or
+any:: (a -> Bool) -> [a] -> Bool
+any f [] = False
+any f (x:xs) = if f x then True else any f xs
+
+all:: (a -> Bool) -> [a] -> Bool
+all f [] = True
+all f (x:xs) = if f x then all f xs else False
+
+and :: [Bool] -> Bool
+and [] = True
+and (x:xs) = if x then and xs else x
+
+or :: [Bool] -> Bool
+or [] = False
+or (x:xs) = if x then True else or xs
 
 concat :: [[a]] -> [a]
 concat [] = []
 concat (x:xs) = x ++ concat xs
 
 -- elem using the funciton 'any' above
+elem :: Eq a => a -> [a] -> Bool
+elem x = any ( == x) 
 
 -- elem': same as elem but elementary definition
+elem' :: Eq a => a -> [a] -> Bool
+elem' _  [] = False
+elem' y  (x:xs) = if x==y then True else elem' y xs
 -- (without using other functions except (==))
 
--- (!!)
+(!!) :: [a] -> Int -> a
+(!!) [] _ = error "index too large"
+(!!) (x:xs) 0 = x
+(!!) (x:xs) n = if n < 0 then error "negative index" else (!!) xs (n-1)
 
 filter :: (a -> Bool) -> [a] -> [a]
 filter _ [] = []
 filter f (x:xs) = if f x  then x:(filter f xs) else filter f xs
--- map
+
+
+map :: (a -> b) -> [a] -> [b]
+map _ [] = []
+map f (x:xs) = f x:(map f xs)
 
 -- cycle
 -- repeat
@@ -152,8 +178,12 @@ filter f (x:xs) = if f x  then x:(filter f xs) else filter f xs
 -- isInfixOf
 -- isSuffixOf
 
--- zip
--- zipWith
+zip :: [a] -> [b] -> [(a,b)]
+zip (x:xs) (y:ys) = (x,y): (zip xs ys)
+zip _ _ = []
+zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith f (x:xs) (y:ys) = f x y: (zipWith f xs ys)
+zipWith f _ _ = []
 
 -- intercalate
 -- nub
@@ -161,6 +191,7 @@ filter f (x:xs) = if f x  then x:(filter f xs) else filter f xs
 -- splitAt
 -- what is the problem with the following?:
 -- splitAt n xs  =  (take n xs, drop n xs)
+-- n can be bigger then length of xs or can be negative too
 
 -- break
 
