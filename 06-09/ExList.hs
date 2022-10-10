@@ -92,12 +92,12 @@ maximum (x:xs) = if x <= y then y else x
 take :: Int -> [a] -> [a]
 take _ [] = []
 take 0 _ = []
-take n (y:ys) = y : (take (n-1) ys)
+take n (y:ys) = if n > 0 then y : (take (n-1) ys) else []
 
 drop :: Int -> [a] -> [a]
 drop _ [] = []
 drop 0 ys = ys
-drop n (y:ys) = (drop (n-1) ys)
+drop n (y:ys) = if n > 0 then (drop (n-1) ys) else (y:ys)
 
 takeWhile :: (a -> Bool) -> [a] -> [a]
 takeWhile f [] = []
@@ -170,13 +170,37 @@ map :: (a -> b) -> [a] -> [b]
 map _ [] = []
 map f (x:xs) = f x:(map f xs)
 
--- cycle
--- repeat
--- replicate
+cycle :: [a] -> [a]
+cycle [] = error "empty list"
+cycle xs = xs ++ cycle xs
 
--- isPrefixOf
--- isInfixOf
--- isSuffixOf
+repeat :: a -> [a]
+repeat x = x : repeat x
+
+replicate :: Int -> a -> [a]
+replicate x y | x >= 1 = y : replicate (x-1) y | otherwise = []
+
+isPrefixOf :: Eq a => [a] -> [a] -> Bool
+isPrefixOf [] _ = True
+isPrefixOf _ [] = False
+isPrefixOf (x : xs) (y : ys) = if x == y then isPrefixOf xs ys else False 
+
+isInfixOf :: Eq a => [a] -> [a] -> Bool
+isInfixOf [] _ = True
+isInfixOf _ [] = False
+isInfixOf (xs) (y : ys) = if xsz > ysz then False else if xs == (take xsz (y:ys)) then True else isInfixOf xs (ys)
+                        where  
+                            xsz = length xs
+                            ysz = length (y : ys)
+
+isSuffixOf :: Eq a => [a] -> [a] -> Bool
+isSuffixOf [] _ = True
+isSuffixOf _ [] = False
+isSuffixOf (xs) (y : ys) = if xsz > ysz then False else if xs == (drop (ysz-xsz) (y:ys)) then True else False
+                        where  
+                            xsz = length xs
+                            ysz = length (y : ys)
+
 
 zip :: [a] -> [b] -> [(a,b)]
 zip (x:xs) (y:ys) = (x,y): (zip xs ys)
@@ -185,19 +209,42 @@ zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 zipWith f (x:xs) (y:ys) = f x y: (zipWith f xs ys)
 zipWith f _ _ = []
 
--- intercalate
--- nub
+intercalate :: [a] -> [[a]] -> [a]
+intercalate _ [] = []
+intercalate (xs) (y:ys) = y++xs++ (intercalate xs ys)
 
--- splitAt
+nub :: Eq a => [a] -> [a]
+nub [] = []
+nub (x:xs) = x:(filter (/=x) (nub xs))
+
+
+--splitAt :: Int -> [a] -> ([a],[a])
 -- what is the problem with the following?:
 -- splitAt n xs  =  (take n xs, drop n xs)
 -- n can be bigger then length of xs or can be negative too
 
--- break
+break :: (a -> Bool) -> [a] -> ([a], [a])
+break _ [] = ([],[])
+break f xs = (takeUntil f xs, dropUntil f xs)
+            where
+                takeUntil _ [] = []
+                takeUntil f (x:xs) = if f x then [] else x: takeUntil f xs
 
--- lines
--- words
--- unlines
+                dropUntil _ [] = []
+                dropUntil f (x:xs) = if f x then (x:xs) else dropUntil f xs
+
+lines :: String -> [String]
+lines xs = [xs]
+
+words :: String -> [String]
+words [] = []
+words (xs) = if (dropWhile (/= ' ') xs) == [] then takeWhile (/= ' ') xs : words [] 
+            else takeWhile (/= ' ') xs : words (tail(dropWhile (/= ' ') xs))
+
+unlines :: [String] -> String
+unines [] = []
+unlines (x:xs) = x ++ "\n" ++ unlines xs
+
 -- unwords
 
 -- transpose
