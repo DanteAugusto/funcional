@@ -245,9 +245,15 @@ unlines :: [String] -> String
 unines [] = []
 unlines (x:xs) = x ++ "\n" ++ unlines xs
 
--- unwords
+unwords :: [String] -> String
+unwords [] = []
+unwords [x] = x
+unwords (x:xs) = x ++ " " ++ unwords xs
 
--- transpose
+transpose :: [[a]] -> [[a]]
+transpose [] = []
+transpose [[]] = []
+transpose xs = (map head (filter (not.null) xs)) : transpose (map tail (filter (not.null) xs))
 
 -- checks if the letters of a phrase form a palindrome (see below for examples)
 palindrome :: String -> Bool
